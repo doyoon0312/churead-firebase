@@ -1,11 +1,13 @@
-import React, { useState } from "react";
-import InputField from "../components/InputField";
-import LoginButton from "../components/LoginButton";
-import { Link } from "react-router-dom";
+import React, { useState } from 'react';
+import InputField from '../components/InputField';
+import LoginButton from '../components/LoginButton';
+import { Link, useNavigate } from 'react-router-dom';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
 
 const Login = () => {
   // logic
-  // const history = useNavigate();
+  const history = useNavigate();
 
   // const goToHome = () => {
   //   history("/");
@@ -20,8 +22,12 @@ const Login = () => {
    * 5. handleLogin에서 email, password 의 값을 확인한다.
    */
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  // 로딩 상태
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // const [formData, setFormData] = useState({
   //   email: "",
@@ -33,18 +39,39 @@ const Login = () => {
     // const newFormData = { ...formData, [field]: inputValue };
     // setFormData(newFormData);
 
-    if (field === "email") {
+    if (field === 'email') {
       setEmail(inputValue);
     } else {
       setPassword(inputValue);
     }
   };
 
-  const handleLogin = (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault(); // 폼 제출시 새로고침 방지 메소드
-    console.log("email", email);
-    console.log("password", password);
-    // TODO: 로그인 기능 구현
+
+    // TODO: 로그인 기능
+
+    setErrorMessage('');
+
+    // 로딩중이거나 사용자가 emaill, password값 작성 안하면 실행안함
+    if (isLoading || !email || !password) return;
+    console.log('email', email);
+    console.log('password', password);
+
+    setIsLoading(true);
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+
+      // 홈화면으로 리다이렉트
+      history('/');
+    } catch (error) {
+      // 비동기처리 실패시
+      setErrorMessage(error.message);
+    } finally {
+      // 성공, 실패 상관없이 마지막에 실행
+      setIsLoading(false);
+    }
   };
 
   // view
@@ -76,6 +103,7 @@ const Login = () => {
             field="password"
             onChange={handleInputChange}
           />
+          {errorMessage && <p className="text-red-600">{errorMessage}</p>}
           <LoginButton category="login" text="Login" />
         </form>
         {/* END: 폼 영역 */}
@@ -86,9 +114,9 @@ const Login = () => {
           </Link>
         </div>
         <p className="text-gray-500 text-sm relative mb-4">
-          {" "}
-          <i className="block w-full h-[1px] bg-churead-gray-300 bg-opacity-15 absolute top-1/2 transform -translate-y-1/2" />{" "}
-          <span className="bg-churead-black relative z-10 px-2"> or </span>{" "}
+          {' '}
+          <i className="block w-full h-[1px] bg-churead-gray-300 bg-opacity-15 absolute top-1/2 transform -translate-y-1/2" />{' '}
+          <span className="bg-churead-black relative z-10 px-2"> or </span>{' '}
         </p>
         {/* START: 소셜 로그인 영역 */}
         <LoginButton category="socialLogin" text="Continue with Google" />

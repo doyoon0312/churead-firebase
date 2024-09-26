@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import Header from "../components/layout/Header";
-import Nav from "../components/layout/Nav";
-import FeedItem from "../components/FeedItem";
-import { initialFeedList } from "../data/response";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import Header from '../components/layout/Header';
+import Nav from '../components/layout/Nav';
+import FeedItem from '../components/FeedItem';
+import { initialFeedList } from '../data/response';
+import { useNavigate } from 'react-router-dom';
+import { auth } from '../firebase';
 
 const Home = ({ churead, editedItem, onEdit }) => {
-  console.log("🚀 ~ Home ~ churead:", churead);
   // logic
   const history = useNavigate();
 
@@ -31,7 +31,7 @@ const Home = ({ churead, editedItem, onEdit }) => {
   const handleEdit = (data) => {
     // 인자, argument
     onEdit(data); // 부모에게 수정할 객체 아이템 넘겨주기
-    history("/edit"); // edit페이지로 이동
+    history('/edit'); // edit페이지로 이동
   };
 
   const handleDelete = (selectedItem) => {
@@ -39,14 +39,31 @@ const Home = ({ churead, editedItem, onEdit }) => {
     setFeedList(filterList);
   };
 
+  const handleLogout = async () => {
+    const ok = window.confirm('정말 로그아웃 하시겠습니까?');
+
+    if (!ok) return; // 아니요 선택시 다음 줄 실행안함
+
+    // TODO: 1. 파이어베이스에게 로그아웃 요청
+    try {
+      // await signOut(auth)
+      await auth.signOut();
+    } catch (error) {
+      console.error(error);
+    }
+
+    // TODO: 2. 로그인 화면으로 리다이렉트
+    history('/login');
+  };
+
   // 진입시 딱 한번 실행
   useEffect(() => {
     if (!churead) return;
     const newFeed = {
       id: feedList.length + 1,
-      userName: "anonymous",
+      userName: 'anonymous',
       userProfileImage:
-        "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
+        'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
       churead: churead,
       likeCount: 0,
     };
@@ -70,7 +87,7 @@ const Home = ({ churead, editedItem, onEdit }) => {
   return (
     <div className="h-full pt-20 pb-[74px] overflow-hidden">
       {/* START: 헤더 영역 */}
-      <Header />
+      <Header onLogout={handleLogout} />
       {/* END: 헤더 영역 */}
       <main className="h-full overflow-auto">
         <div>

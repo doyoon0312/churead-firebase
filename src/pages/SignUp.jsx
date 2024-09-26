@@ -30,7 +30,7 @@ const SignUp = () => {
   const handleSignUp = async (event) => {
     event.preventDefault();
 
-    // 사용자가 name, email, password 값이 없으면 실행하지 않게 하기
+    // 로딩 중 사용자가 name, email, password 값을 작성하지 않으면 실행하지 않게 하기
     if (isLoading | !name || !email || !password) return;
     console.log('name', name);
     console.log('email', email);
