@@ -30,6 +30,8 @@ const SignUp = () => {
   const handleSignUp = async (event) => {
     event.preventDefault();
 
+    setErrorMessage('');
+
     // 로딩 중 사용자가 name, email, password 값을 작성하지 않으면 실행하지 않게 하기
     if (isLoading | !name || !email || !password) return;
     console.log('name', name);
@@ -93,7 +95,7 @@ const SignUp = () => {
             field="password"
             onChange={handleInputChange}
           />
-          {/* ??? */}
+          {/* 오류 메시지 표현시키기 */}
           {errorMessage && <p className="text-red-600">{errorMessage}</p>}
           <LoginButton
             category="login"

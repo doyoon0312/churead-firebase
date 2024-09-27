@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import InputField from '../components/InputField';
 import LoginButton from '../components/LoginButton';
 import { Link, useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from 'firebase/auth';
 import { auth } from '../firebase';
 
 const Login = () => {
@@ -74,6 +78,20 @@ const Login = () => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    // 구글 provider 설정
+    const provider = new GoogleAuthProvider();
+
+    try {
+      // 1. 팝업 띄워서 구글 로그인
+      await signInWithPopup(auth, provider);
+      // 2. 홈화면으로 리다이렉트
+      history('/');
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   // view
   return (
     <div className="h-full flex flex-col justify-center">
@@ -104,7 +122,10 @@ const Login = () => {
             onChange={handleInputChange}
           />
           {errorMessage && <p className="text-red-600">{errorMessage}</p>}
-          <LoginButton category="login" text="Login" />
+          <LoginButton
+            category="login"
+            text={isLoading ? 'Loading...' : 'Login'}
+          />
         </form>
         {/* END: 폼 영역 */}
         <div className="flex justify-center gap-1 py-6">
@@ -119,7 +140,11 @@ const Login = () => {
           <span className="bg-churead-black relative z-10 px-2"> or </span>{' '}
         </p>
         {/* START: 소셜 로그인 영역 */}
-        <LoginButton category="socialLogin" text="Continue with Google" />
+        <LoginButton
+          category="socialLogin"
+          text="Continue with Google"
+          onClick={handleGoogleLogin}
+        />
         {/* END: 소셜 로그인 영역 */}
       </div>
     </div>

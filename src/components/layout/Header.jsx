@@ -1,7 +1,6 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
-const Header = () => {
+const Header = ({ onLogout }) => {
   return (
     <header className="max-w-[572px] fixed top-0 left-0 right-0 mx-auto">
       <h1 className="py-2 text-center">
@@ -10,7 +9,9 @@ const Header = () => {
         </Link>
       </h1>
       <div className="absolute top-1/2 tranform -translate-y-1/2 right-5 rounded-lg bg-white text-churead-black flex items-center px-2 text-sm">
-        <button type="button">로그아웃</button>
+        <button type="button" onClick={onLogout}>
+          로그아웃
+        </button>
       </div>
     </header>
   );
