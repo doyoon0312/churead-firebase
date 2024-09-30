@@ -4,7 +4,16 @@ import Nav from '../components/layout/Nav';
 import FeedItem from '../components/FeedItem';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  increment,
+  onSnapshot,
+  orderBy,
+  query,
+  updateDoc,
+} from 'firebase/firestore';
 
 const Home = ({ editedItem, onEdit }) => {
   // logic
@@ -39,9 +48,14 @@ const Home = ({ editedItem, onEdit }) => {
     history('/edit'); // edit페이지로 이동
   };
 
-  const handleDelete = (selectedItem) => {
-    const filterList = feedList.filter((item) => item.id !== selectedItem.id);
-    setFeedList(filterList);
+  const handleDelete = async (selectedItem) => {
+    if (selectedItem.userId !== user.uid) return;
+
+    try {
+      await deleteDoc(doc(db, 'chureads', selectedItem.id));
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleLogout = async () => {
@@ -76,6 +90,13 @@ const Home = ({ editedItem, onEdit }) => {
         };
       });
       setFeedList(datas);
+    });
+  };
+
+  const handleLike = async (selectedItem) => {
+    console.log('heart click');
+    await updateDoc(doc(db, 'chureads', selectedItem.id), {
+      likeCount: increment(1),
     });
   };
 
@@ -115,6 +136,7 @@ const Home = ({ editedItem, onEdit }) => {
                 data={feed}
                 onDelete={handleDelete}
                 onEdit={handleEdit}
+                onLike={handleLike}
               />
             ))}
           </ul>

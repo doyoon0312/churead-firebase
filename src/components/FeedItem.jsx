@@ -1,19 +1,21 @@
-import React from "react";
-import { RiHeartLine, RiPencilFill } from "react-icons/ri";
-import { FaTrash } from "react-icons/fa6";
+import React from 'react';
+import { RiHeartLine, RiPencilFill } from 'react-icons/ri';
+import { FaTrash } from 'react-icons/fa6';
 
-const FeedItem = ({ data, onEdit, onDelete }) => {
+const FeedItem = ({ data, onEdit, onDelete, onLike }) => {
   // logic
   const { userName, userProfileImage, churead, likeCount } = data;
 
   const handleDelete = () => {
     // confirm: 사용자에게 확인 | 취소 할수 있도록 선택하게 하는 알림창으로 boolean타입을 리턴함
-    const ok = window.confirm("정말 삭제하시겠습니까?");
+    const ok = window.confirm('정말 삭제하시겠습니까?');
     if (ok) {
       // 사용자가 확인을 선택한 경우
       onDelete(data); // 부모에게 데이터를 넘겨주기 위함
     }
   };
+
+  const handleLike = () => {};
 
   // view
   return (
@@ -35,14 +37,14 @@ const FeedItem = ({ data, onEdit, onDelete }) => {
                 className="max-w-6 p-1"
                 onClick={() => onEdit(data)}
               >
-                <RiPencilFill size={"18px"} />
+                <RiPencilFill size={'18px'} />
               </button>
               <button
                 type="button"
                 className="max-w-6 p-1"
                 onClick={handleDelete}
               >
-                <FaTrash size={"14px"} />
+                <FaTrash size={'14px'} />
               </button>
             </div>
             {/* END: 수정, 삭제 버튼 영역 */}
@@ -50,7 +52,11 @@ const FeedItem = ({ data, onEdit, onDelete }) => {
           <p className="pt-1">{churead}</p>
           {/* START: 좋아요 영역 */}
           <div className="flex items-center gap-1">
-            <button type="button" className="text-churead-gray-400">
+            <button
+              type="button"
+              className="text-churead-gray-400"
+              onClick={() => onLike(data)}
+            >
               <RiHeartLine />
               {/* <RiHeartFill color="red" /> */}
             </button>
