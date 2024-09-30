@@ -1,17 +1,22 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import PostInput from "../components/PostInput";
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import PostInput from '../components/PostInput';
+import { auth, db } from '../firebase';
+import { addDoc, collection } from 'firebase/firestore';
 
-const Post = ({ onPost }) => {
+const Post = () => {
   // logic
+  const user = auth.currentUser;
+
   const history = useNavigate();
-  const [churead, setChuread] = useState("");
+
+  const [churead, setChuread] = useState('');
 
   const handleChange = (value) => {
     setChuread(value);
   };
 
-  const handlePost = (event) => {
+  const handlePost = async (event) => {
     event.preventDefault(); // 폼 제출시 새로고침 방지 메소드
 
     // 1. 텍스트에서 불필요한 공백 제거하기
@@ -22,13 +27,30 @@ const Post = ({ onPost }) => {
     const resultChuread = churead.trim();
     if (!resultChuread) {
       // 빈 스트링인 경우
-      alert("츄레드를 입력해주세요");
+      alert('츄레드를 입력해주세요');
       return;
     }
 
     // 빈 스트링이 아닌 경우
-    onPost(churead); // 부모에게 churead입력값 넘겨주기
-    history("/"); // home화면으로 이동
+
+    //파이어 베이스 아이템 추가
+    try {
+      const newFeed = {
+        userId: user.uid,
+        userName: user.displayName || 'Anonymous',
+        userProfileImage:
+          user.photoURL ||
+          'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
+        churead: churead,
+        likeCount: 0,
+        creatAt: Date.now(),
+      };
+      await addDoc(collection(db, 'chureads'), newFeed);
+    } catch (error) {
+      console.error(error);
+    }
+
+    history('/'); // home화면으로 이동
   };
 
   // view
@@ -47,7 +69,11 @@ const Post = ({ onPost }) => {
         <div className="h-full overflow-auto">
           <form id="post" onSubmit={handlePost}>
             {/* START: 사용자 입력 영역 */}
-            <PostInput onChange={handleChange} />
+            <PostInput
+              userName={user.displayName}
+              userProfileImage={user.photoURL || undefined}
+              onChange={handleChange}
+            />
             {/* END: 사용자 입력 영역 */}
             {/* START: 게시 버튼 영역 */}
             <div className="w-full max-w-[572px] flex items-center fixed bottom-0 lef p-6">

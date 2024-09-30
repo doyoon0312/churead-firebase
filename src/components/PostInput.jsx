@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
 
 const PostInput = ({
-  defaultValue = "",
-  userName = "anonymous",
-  userProfileImage = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
+  defaultValue = '',
+  userName = 'anonymous',
+  userProfileImage = 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
   onChange,
 }) => {
   // logic
@@ -19,7 +19,6 @@ const PostInput = ({
 
   // 진입시 딱 한번 실행
   useEffect(() => {
-    console.log("textareaRef", textareaRef);
     textareaRef.current && textareaRef.current.focus();
     const length = value.length;
     textareaRef.current &&

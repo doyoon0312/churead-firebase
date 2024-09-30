@@ -4,11 +4,16 @@ import Nav from '../components/layout/Nav';
 import FeedItem from '../components/FeedItem';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
-import { collection, onSnapshot, query } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 
-const Home = ({ churead, editedItem, onEdit }) => {
+const Home = ({ editedItem, onEdit }) => {
   // logic
+
+  const user = auth.currentUser; // User | null
+
   const history = useNavigate();
+
+  let unsubscribe = null;
 
   const [feedList, setFeedList] = useState([]);
 
@@ -44,7 +49,7 @@ const Home = ({ churead, editedItem, onEdit }) => {
 
     if (!ok) return; // 아니요 선택시 다음 줄 실행안함
 
-    // TODO: 1. 파이어베이스에게 로그아웃 요청
+    // 1. 파이어베이스에게 로그아웃 요청
     try {
       // await signOut(auth)
       await auth.signOut();
@@ -52,43 +57,35 @@ const Home = ({ churead, editedItem, onEdit }) => {
       console.error(error);
     }
 
-    // TODO: 2. 로그인 화면으로 리다이렉트
+    // 2. 로그인 화면으로 리다이렉트
     history('/login');
   };
 
   const getLiveDate = () => {
-    const collectionRef = collection(db, 'chuerads');
+    const collectionRef = collection(db, 'chureads');
 
-    const chureadQuery = query(collectionRef);
-
-    onSnapshot(chureadQuery, (snapshot) => {
+    const chureadQuery = query(collectionRef, orderBy('creatAt', 'desc'));
+    //실시간 데이터 가져오기
+    unsubscribe = onSnapshot(chureadQuery, (snapshot) => {
       const datas = snapshot.docs.map((item) => {
-        console.log('item', item.data());
-        return { id: item.id, ...item.data() };
+        const data = item.data();
+        return {
+          id: item.id,
+          ...data,
+          isAuthor: user.uid === data.userld,
+        };
       });
-      // console.log('datas:', datas);
       setFeedList(datas);
     });
   };
 
-  // 진입시 딱 한번 실행
-  useEffect(() => {
-    if (!churead) return;
-    const newFeed = {
-      id: feedList.length + 1,
-      userName: 'anonymous',
-      userProfileImage:
-        'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
-      churead: churead,
-      likeCount: 0,
-    };
-    // feedList에 객체 추가
-    setFeedList([newFeed, ...feedList]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   useEffect(() => {
     getLiveDate();
+    return () => {
+      unsubscribe && unsubscribe();
+      console.log('🚀unsubscribe:', unsubscribe);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
